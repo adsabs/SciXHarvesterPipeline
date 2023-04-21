@@ -6,7 +6,7 @@ from tests.API.base import mock_gRPC_avro_msg
 
 class TestAvroSerializer(TestCase):
     def test_avro_serialization(self):
-        with open('tests/data/HarvesterInputSchema.avsc') as f:
+        with open('tests/stubdata/HarvesterInputSchema.avsc') as f:
             schema_json = json.load(f)
         msg = mock_gRPC_avro_msg().value()
         serializer = avro_serializer.AvroSerialHelper(json.dumps(schema_json))
@@ -15,7 +15,7 @@ class TestAvroSerializer(TestCase):
 
     
     def test_avro_deserialization(self):
-        with open('tests/data/HarvesterInputSchema.avsc') as f:
+        with open('tests/stubdata/HarvesterInputSchema.avsc') as f:
             schema_json = json.load(f)
         serializer = avro_serializer.AvroSerialHelper(json.dumps(schema_json))
         bitstream = mock_gRPC_avro_msg().bitstream()
