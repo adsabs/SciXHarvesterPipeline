@@ -33,6 +33,7 @@ def get_schema(app, schema_client, schema_name):
     except Exception as e:
         avro_schema = None
         app.logger.warning("Could not retrieve avro schema with exception: {}".format(e))
+        raise e
 
     return avro_schema.schema.schema_str
 

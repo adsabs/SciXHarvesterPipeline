@@ -1,9 +1,10 @@
 import logging
 from unittest import TestCase
 
+import pytest
 from confluent_kafka.schema_registry import Schema
 
-from API.harvester_client import Logging, get_schema, input_parser
+from API.harvester_client import Logging, get_schema, input_parser, output_message
 from tests.common.mockschemaregistryclient import MockSchemaRegistryClient
 
 
@@ -19,6 +20,12 @@ class TestHarvesterClient(TestCase):
         schema = get_schema(logger, schema_client, VALUE_SCHEMA_NAME)
         self.assertEqual(value_schema, schema)
 
+    def test_get_schema_failure(self):
+        logger = Logging(logging)
+        schema_client = MockSchemaRegistryClient()
+        with pytest.raises(Exception):
+            get_schema(logger, schema_client, "FakeSchema")
+
     def test_input_parser(self):
         input_args = [
             "HARVESTER_MONITOR",
@@ -28,6 +35,9 @@ class TestHarvesterClient(TestCase):
         args = input_parser(input_args)
         self.assertEqual(args.action, input_args[0])
         self.assertEqual(args.job_id, input_args[2])
+
+        s = output_message(args)
+        self.assertEqual(s["task"], "MONITOR")
 
         input_args = [
             "HARVESTER_INIT",
@@ -42,3 +52,6 @@ class TestHarvesterClient(TestCase):
         self.assertEqual(args.task, input_args[2])
         self.assertEqual(args.job_args, input_args[4])
         self.assertEqual(args.persistence, True)
+
+        s = output_message(args)
+        self.assertEqual(s["task"], "ARXIV")
