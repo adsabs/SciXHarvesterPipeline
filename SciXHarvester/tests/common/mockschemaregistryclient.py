@@ -23,6 +23,13 @@
 from confluent_kafka.avro import ClientError
 
 
+class schema_object(object):
+    def __init__(self, schema_id, schema, version):
+        self.schema_id = schema_id
+        self.schema = schema
+        self.version = version
+
+
 class MockSchemaRegistryClient(object):
     """
     A client that acts as a schema registry locally.
@@ -85,7 +92,7 @@ class MockSchemaRegistryClient(object):
             si, s, v = self.subject_to_latest_schema[subject]
             if v > version:
                 return
-        self.subject_to_latest_schema[subject] = (schema_id, schema, version)
+        self.subject_to_latest_schema[subject] = schema_object(schema_id, schema, version)
 
     def register(self, subject, avro_schema):
         """
@@ -155,7 +162,7 @@ class MockSchemaRegistryClient(object):
 
         return (schema_id, schema, schema_version)
 
-    def get_latest_schema(self, subject):
+    def get_latest_version(self, subject):
         """
         Return the latest 3-tuple of:
         (the schema id, the parsed avro schema, the schema version)

@@ -9,11 +9,11 @@ import requests
 from base import MockListRecords
 from confluent_kafka.avro import AvroProducer
 from mock import patch
-from mockschemaregistryclient import MockSchemaRegistryClient
 
 from harvester import db, utils
 from harvester.harvester import Harvester_APP
 from harvester.metadata.arxiv_harvester import ArXiV_Harvester, arxiv_harvesting
+from tests.common.mockschemaregistryclient import MockSchemaRegistryClient
 
 
 @pytest.fixture

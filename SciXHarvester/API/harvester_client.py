@@ -17,11 +17,13 @@ import argparse
 import asyncio
 import json
 import logging
+import sys
 
 import grpc
-import grpc_modules.harvester_grpc as harvester_grpc
-from avro_serializer import AvroSerialHelper
 from confluent_kafka.schema_registry import SchemaRegistryClient
+
+import SciXHarvester.API.grpc_modules.harvester_grpc as harvester_grpc
+from SciXHarvester.API.avro_serializer import AvroSerialHelper
 
 
 def get_schema(app, schema_client, schema_name):
@@ -49,7 +51,7 @@ schema = get_schema(logger, schema_client, "HarvesterInputSchema")
 avroserialhelper = AvroSerialHelper(schema)
 
 
-async def run() -> None:
+def input_parser(cli_args):
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help="commands", dest="action")
     process_parser = subparsers.add_parser(
@@ -90,40 +92,41 @@ async def run() -> None:
         default=False,
         help="Specify whether server keeps channel open to client during processing.",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(cli_args)
+    return args
 
+
+def output_message(args):
+    s = {}
+    # Read from an async generator
+    if args.action == "HARVESTER_INIT":
+        if args.job_args:
+            task_args = json.loads(args.job_args)
+            s["task_args"] = task_args
+            if task_args.get("ingest"):
+                s["task_args"]["ingest"] = bool(task_args["ingest"])
+        s["task_args"]["persistence"] = args.persistence
+        s["task"] = args.task
+    elif args.action == "HARVESTER_MONITOR":
+        s["task"] = "MONITOR"
+        s["task_args"] = {"persistence": args.persistence}
+        s["hash"] = args.job_id
+    return s
+
+
+async def run() -> None:
+    args = input_parser(sys.argv[1:])
     async with grpc.aio.insecure_channel("localhost:50051") as channel:
-        s = {}
-        # Read from an async generator
-        if args.action == "HARVESTER_INIT":
-            if args.job_args:
-                task_args = json.loads(args.job_args)
-                s["task_args"] = task_args
-                if task_args.get("ingest"):
-                    s["task_args"]["ingest"] = bool(task_args["ingest"])
-            s["task_args"]["persistence"] = args.persistence
-            s["task"] = args.task
-            try:
-                stub = harvester_grpc.HarvesterInitStub(channel, avroserialhelper)
-                async for response in stub.initHarvester(s):
-                    print(response)
-
-            except grpc.aio._call.AioRpcError as e:
-                code = e.code()
-                print(
-                    "gRPC server connection failed with status {}: {}".format(
-                        code.name, code.value
-                    )
-                )
-
-        elif args.action == "HARVESTER_MONITOR":
-            s["task"] = "MONITOR"
-            s["task_args"] = {"persistence": args.persistence}
-            s["hash"] = args.job_id
-
-            stub = harvester_grpc.HarvesterMonitorStub(channel, avroserialhelper)
-            async for response in stub.monitorHarvester(s):
+        s = output_message(args)
+        print(s)
+        try:
+            stub = harvester_grpc.HarvesterInitStub(channel, avroserialhelper)
+            async for response in stub.initHarvester(s):
                 print(response)
+
+        except grpc.aio._call.AioRpcError as e:
+            code = e.code()
+            print("gRPC server connection failed with status {}: {}".format(code.name, code.value))
 
 
 if __name__ == "__main__":

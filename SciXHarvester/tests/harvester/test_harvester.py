@@ -3,11 +3,11 @@ from unittest import TestCase
 import base
 from confluent_kafka.avro import AvroProducer
 from mock import patch
-from mockschemaregistryclient import MockSchemaRegistryClient
 
 import harvester.metadata.arxiv_harvester as arxiv_harvester
 from harvester import db
 from harvester.harvester import Harvester_APP
+from tests.common.mockschemaregistryclient import MockSchemaRegistryClient
 
 
 class test_harvester(TestCase):
