@@ -26,6 +26,11 @@ import SciXHarvester.API.grpc_modules.harvester_grpc as harvester_grpc
 from SciXHarvester.API.avro_serializer import AvroSerialHelper
 
 
+class Logging:
+    def __init__(self, logger):
+        self.logger = logger
+
+
 def get_schema(app, schema_client, schema_name):
     try:
         avro_schema = schema_client.get_latest_version(schema_name)
@@ -36,20 +41,6 @@ def get_schema(app, schema_client, schema_name):
         raise e
 
     return avro_schema.schema.schema_str
-
-
-schema_client = SchemaRegistryClient({"url": "http://localhost:8081"})
-
-
-class Logging:
-    def __init__(self, logger):
-        self.logger = logger
-
-
-logger = Logging(logging)
-schema = get_schema(logger, schema_client, "HarvesterInputSchema")
-
-avroserialhelper = AvroSerialHelper(schema)
 
 
 def input_parser(cli_args):
@@ -116,6 +107,13 @@ def output_message(args):
 
 
 async def run() -> None:
+    schema_client = SchemaRegistryClient({"url": "http://localhost:8081"})
+
+    logger = Logging(logging)
+    schema = get_schema(logger, schema_client, "HarvesterInputSchema")
+
+    avroserialhelper = AvroSerialHelper(schema)
+
     args = input_parser(sys.argv[1:])
     async with grpc.aio.insecure_channel("localhost:50051") as channel:
         s = output_message(args)
