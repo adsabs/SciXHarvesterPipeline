@@ -14,6 +14,14 @@ pip install .
 pre-commit install
 pre-commit install --hook-type commit-msg
 ```
+
+To install gRPC, the following variables may need to be set in order for the build to succeed:
+
+```
+export GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
+export GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1
+```
+
 ### Testing with pytest
 Tests can be run from  the `SciXHarvester` directory using pytest:
 ```bash
