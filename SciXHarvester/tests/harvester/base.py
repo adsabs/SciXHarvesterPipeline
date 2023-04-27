@@ -10,10 +10,8 @@ class base_utils(TestCase):
     def mock_multiple_targets(mock_patches):
         """
         `mock_patches` is a list (or iterable) of mock.patch objects
-
         This is required when too many patches need to be applied in a nested
         `with` statement, since python has a hardcoded limit (~20).
-
         Based on: https://gist.github.com/msabramo/dffa53e4f29ec2e3682e
         """
         mocks = {}
@@ -50,9 +48,13 @@ class MockGetRecord(requests_mock.MockerCore):
     def __init__(self, **kwargs):
         requests_mock.MockerCore.__init__(self)
         self.kwargs = kwargs
-        with open('tests/stubdata/arxiv_stubdata/metadata/GetRecord_data.xml', 'r+') as f:
-             response_text = f.read()
-        self.url='https://export.arxiv.org/oai2?verb=GetRecord&identifier=oai%3AarXiv.org%3A2107.10460'
+        with open("tests/stubdata/arxiv/metadata/GetRecord_data.xml", "r+") as f:
+            response_text = f.read()
+        self.url = (
+            "https://export.arxiv.org/oai2?verb=GetRecord&identifier=oai%3AarXiv.org%3A2107.10460"
+        )
+
+        self.register_uri("GET", self.url, text=response_text)
 
     def __enter__(self):
         self.start()
@@ -89,12 +91,14 @@ class MockListRecords(requests_mock.MockerCore):
             )
 
     def callback(self, i, kwargs):
-        if not kwargs.get('error_503'):
-            with open('tests/stubdata/arxiv_stubdata/metadata/ListRecords_data_{}.xml'.format(i), 'r+') as f:
+        if not kwargs.get("error_503"):
+            with open(
+                "tests/stubdata/arxiv/metadata/ListRecords_data_{}.xml".format(i), "r+"
+            ) as f:
                 response_text = f.read()
         else:
-            with open('tests/stubdata/arxiv_stubdata/metadata/arxiv_retry_after.html', 'r+') as f:
-                response_text = f.read()  
+            with open("tests/stubdata/arxiv/arxiv_retry_after.html", "r+") as f:
+                response_text = f.read()
         return response_text
 
     def __enter__(self):
@@ -114,9 +118,11 @@ class MockListIdentifiers(requests_mock.MockerCore):
     def __init__(self, **kwargs):
         requests_mock.MockerCore.__init__(self)
         self.kwargs = kwargs
-        with open('tests/stubdata/arxiv_stubdata/metadata/ListIdentifiers_data.xml', 'r+') as f:
-             response_text = f.read()
-        self.url='https://export.arxiv.org/oai2?metadataPrefix=oai_dc&verb=ListIdentifiers&from=2023-03-07'
+        with open("tests/stubdata/arxiv/metadata/ListIdentifiers_data.xml", "r+") as f:
+            response_text = f.read()
+        self.url = "https://export.arxiv.org/oai2?metadataPrefix=oai_dc&verb=ListIdentifiers&from=2023-03-07"
+
+        self.register_uri("GET", self.url, text=response_text)
 
     def __enter__(self):
         self.start()
