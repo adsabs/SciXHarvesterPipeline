@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -51,14 +50,6 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
-=======
-venv/
-.DS_Store/
-.venv/
-__pycache__
-logs/
-local_config.py
->>>>>>> 0553206 (Removed .DS_store and updated .gitignore.)
 cache/
 
 # Translations
