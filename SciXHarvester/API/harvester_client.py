@@ -117,15 +117,33 @@ async def run() -> None:
     args = input_parser(sys.argv[1:])
     async with grpc.aio.insecure_channel("localhost:50051") as channel:
         s = output_message(args)
-        print(s)
-        try:
-            stub = harvester_grpc.HarvesterInitStub(channel, avroserialhelper)
-            async for response in stub.initHarvester(s):
-                print(response)
+        if s["task"] == "MONITOR":
+            try:
+                stub = harvester_grpc.HarvesterMonitorStub(channel, avroserialhelper)
+                async for response in stub.monitorHarvester(s):
+                    print(response)
 
-        except grpc.aio._call.AioRpcError as e:
-            code = e.code()
-            print("gRPC server connection failed with status {}: {}".format(code.name, code.value))
+            except grpc.aio._call.AioRpcError as e:
+                code = e.code()
+                print(
+                    "gRPC server connection failed with status {}: {}".format(
+                        code.name, code.value
+                    )
+                )
+
+        else:
+            try:
+                stub = harvester_grpc.HarvesterInitStub(channel, avroserialhelper)
+                async for response in stub.initHarvester(s):
+                    print(response)
+
+            except grpc.aio._call.AioRpcError as e:
+                code = e.code()
+                print(
+                    "gRPC server connection failed with status {}: {}".format(
+                        code.name, code.value
+                    )
+                )
 
 
 if __name__ == "__main__":
