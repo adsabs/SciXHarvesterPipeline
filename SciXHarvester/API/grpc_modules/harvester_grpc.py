@@ -3,7 +3,7 @@ import grpc
 
 
 class HarvesterInitStub(object):
-    """The greeting service definition."""
+    """The Stub for connecting to the Harvester init service."""
 
     def __init__(self, channel, avroserialhelper):
         """Constructor.
@@ -19,16 +19,16 @@ class HarvesterInitStub(object):
 
 
 class HarvesterInitServicer(object):
-    """The greeting service definition."""
+    """The servicer definition for initiating jobs with the Harvester pipeline."""
 
     def initHarvester(self, request, context):
-        """Initializes requests to the Harvester and monitors the results."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
 
 def add_HarvesterInitServicer_to_server(servicer, server, avroserialhelper):
+    """The actual methods for sending and receiving RPC calls."""
     rpc_method_handlers = {
         "initHarvester": grpc.unary_stream_rpc_method_handler(
             servicer.initHarvester,
@@ -42,9 +42,8 @@ def add_HarvesterInitServicer_to_server(servicer, server, avroserialhelper):
     server.add_generic_rpc_handlers((generic_handler,))
 
 
-# This class is part of an EXPERIMENTAL API.
 class HarvesterInit(object):
-    """The greeting service definition."""
+    """The definition of the Harvester gRPC API and stream connections."""
 
     @staticmethod
     def initHarvester(
@@ -75,7 +74,7 @@ class HarvesterInit(object):
 
 
 class HarvesterMonitorStub(object):
-    """Missing associated documentation comment in .proto file."""
+    """The Stub for connecting to the Harvester Monitor service."""
 
     def __init__(self, channel, avroserialhelper):
         """Constructor.
@@ -91,16 +90,16 @@ class HarvesterMonitorStub(object):
 
 
 class HarvesterMonitorServicer(object):
-    """Missing associated documentation comment in .proto file."""
+    """The servicer definition for monitoring jobs already submitted to the Harvester pipeline."""
 
     def monitorHarvester(self, request, context):
-        """Initializes requests to the Harvester and monitors the results."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
 
 def add_HarvesterMonitorServicer_to_server(servicer, server, avroserialhelper):
+    """The actual methods for sending and receiving RPC calls."""
     rpc_method_handlers = {
         "monitorHarvester": grpc.unary_stream_rpc_method_handler(
             servicer.monitorHarvester,
@@ -114,9 +113,8 @@ def add_HarvesterMonitorServicer_to_server(servicer, server, avroserialhelper):
     server.add_generic_rpc_handlers((generic_handler,))
 
 
-# This class is part of an EXPERIMENTAL API.
 class HarvesterMonitor(object):
-    """Missing associated documentation comment in .proto file."""
+    """The definition of the Monitor gRPC API and stream connections."""
 
     @staticmethod
     def monitorHarvester(
