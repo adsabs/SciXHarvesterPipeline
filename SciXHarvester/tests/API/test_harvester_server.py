@@ -6,12 +6,20 @@ import grpc
 import pytest
 from confluent_kafka.avro import AvroProducer
 from confluent_kafka.schema_registry import Schema
+from mock import patch
 
 from API.avro_serializer import AvroSerialHelper
 from API.grpc_modules import harvester_grpc
 from API.harvester_client import Logging, get_schema
 from API.harvester_server import Harvester
+from harvester import db
+from tests.API import base
 from tests.common.mockschemaregistryclient import MockSchemaRegistryClient
+
+
+class fake_db_entry(object):
+    def __init__(self):
+        self.name = "Success"
 
 
 class HarvesterServer(TestCase):
@@ -33,10 +41,15 @@ class HarvesterServer(TestCase):
         output_value_schema = open(OUTPUT_VALUE_SCHEMA_FILE).read()
 
         self.schema_client.register(OUTPUT_VALUE_SCHEMA_NAME, Schema(output_value_schema, "AVRO"))
-
-        self.producer = AvroProducer({}, schema_registry=self.schema_client)
+        self.producer = AvroProducer({}, schema_registry=MockSchemaRegistryClient())
 
         harvester_grpc.add_HarvesterInitServicer_to_server(
+            Harvester(self.producer, self.schema, self.schema_client),
+            self.server,
+            self.avroserialhelper,
+        )
+
+        harvester_grpc.add_HarvesterMonitorServicer_to_server(
             Harvester(self.producer, self.schema, self.schema_client),
             self.server,
             self.avroserialhelper,
@@ -48,7 +61,7 @@ class HarvesterServer(TestCase):
     def tearDown(self):
         self.server.stop(None)
 
-    def test_Harvester_server(self):
+    def test_Harvester_server_bad_entry(self):
         s = {}
 
         with grpc.insecure_channel(f"localhost:{self.port}") as channel:
@@ -56,25 +69,42 @@ class HarvesterServer(TestCase):
             with pytest.raises(SystemExit):
                 stub.initHarvester(s)
 
+    def test_Harvester_server_init(self):
         s = {
             "task_args": {
                 "ingest": True,
                 "ingest_type": "metadata",
                 "daterange": "2023-04-26",
-                "persistence": True,
+                "persistence": False,
             },
             "task": "ARXIV",
         }
-
         with grpc.insecure_channel(f"localhost:{self.port}") as channel:
-            stub = harvester_grpc.HarvesterInitStub(channel, self.avroserialhelper)
-            responses = stub.initHarvester(s)
-            for response in list(responses):
-                print(response)
+            with base.base_utils.mock_multiple_targets(
+                {"write_job_status": patch.object(db, "write_job_status", return_value=True)}
+            ):
+                stub = harvester_grpc.HarvesterInitStub(channel, self.avroserialhelper)
+                responses = stub.initHarvester(s)
+                for response in list(responses):
+                    self.assertEqual(response.get("status"), "Pending")
+                    self.assertNotEqual(response.get("hash"), None)
 
-    # def test_harvester_initHarvester(self):
-    #     harvester_init_class=Harvester(self.producer, self.schema, self.schema_client)
-    #     s={'task_args': {'ingest': True, 'ingest_type': 'metadata', 'daterange': '2023-04-26', 'persistence': True}, 'task': 'ARXIV'}
-    #     import pudb
-    #     pudb.set_trace()
-    #     harvester_init_class.initHarvester(s, grpc.aio.ServicerContext)
+    def test_Harvester_server_monitor(self):
+        s = {
+            "task": "MONITOR",
+            "hash": "c98b5b0f5e4dce3197a4a9a26d124d036f293a9a90a18361f475e4f08c19f2da",
+            "task_args": {"persistence": False},
+        }
+        with grpc.insecure_channel(f"localhost:{self.port}") as channel:
+            with base.base_utils.mock_multiple_targets(
+                {
+                    "get_job_status_by_job_hash": patch.object(
+                        db, "get_job_status_by_job_hash", return_value=fake_db_entry()
+                    )
+                }
+            ):
+                stub = harvester_grpc.HarvesterMonitorStub(channel, self.avroserialhelper)
+                responses = stub.monitorHarvester(s)
+                for response in list(responses):
+                    self.assertEqual(response.get("status"), "Success")
+                    self.assertEqual(response.get("hash"), s.get("hash"))

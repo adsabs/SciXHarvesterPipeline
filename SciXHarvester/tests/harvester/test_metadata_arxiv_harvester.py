@@ -1,7 +1,6 @@
 import pickle
 from unittest import TestCase
 
-import base
 import boto3
 import moto
 import pytest
@@ -14,6 +13,7 @@ from harvester import db, utils
 from harvester.harvester import Harvester_APP
 from harvester.metadata.arxiv_harvester import ArXiV_Harvester, arxiv_harvesting
 from tests.common.mockschemaregistryclient import MockSchemaRegistryClient
+from tests.harvester import base
 
 
 @pytest.fixture
