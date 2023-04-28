@@ -20,7 +20,6 @@ packages = [
 
 dependencies = [
     'confluent-kafka==1.9.2',
-    'requests==2.27.1',
     'fastavro==1.7.2',
     'avro==1.11.1',
     'redis==4.5.4',
