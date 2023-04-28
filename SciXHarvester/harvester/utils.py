@@ -1,9 +1,9 @@
 import ast
-import imp
 import inspect
 import json
 import os
 import sys
+import types
 
 
 def get_schema(app, schema_client, schema_name):
@@ -82,7 +82,7 @@ def load_module(filename):
     """
 
     filename = os.path.join(filename)
-    d = imp.new_module("config")
+    d = types.ModuleType("config")
     d.__file__ = filename
     try:
         with open(filename) as config_file:

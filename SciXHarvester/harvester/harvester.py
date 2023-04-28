@@ -73,7 +73,6 @@ class Harvester_APP:
         self.redis = redis.StrictRedis(
             self.config.get("REDIS_HOST", "localhost"),
             self.config.get("REDIS_PORT", 6379),
-            charset="utf-8",
             decode_responses=True,
         )
 
