@@ -11,23 +11,12 @@ from confluent_kafka.schema_registry import SchemaRegistryClient
 
 import SciXHarvester.API.grpc_modules.harvester_grpc as harvester_grpc
 from SciXHarvester.API.avro_serializer import AvroSerialHelper
+from SciXHarvester.harvester.utils import get_schema
 
 
 class Logging:
     def __init__(self, logger):
         self.logger = logger
-
-
-def get_schema(app, schema_client, schema_name):
-    try:
-        avro_schema = schema_client.get_latest_version(schema_name)
-        app.logger.info("Found schema: {}".format(avro_schema.schema.schema_str))
-    except Exception as e:
-        avro_schema = None
-        app.logger.warning("Could not retrieve avro schema with exception: {}".format(e))
-        raise e
-
-    return avro_schema.schema.schema_str
 
 
 def input_parser(cli_args):
