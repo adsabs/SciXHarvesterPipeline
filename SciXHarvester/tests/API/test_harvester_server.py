@@ -84,14 +84,14 @@ class HarvesterServer(TestCase):
             "task": "ARXIV",
         }
         with grpc.insecure_channel(f"localhost:{self.port}") as channel:
-            with base.base_utils.mock_multiple_targets(
-                {"write_job_status": patch.object(db, "write_job_status", return_value=True)}
-            ):
-                stub = harvester_grpc.HarvesterInitStub(channel, self.avroserialhelper)
-                responses = stub.initHarvester(s)
-                for response in list(responses):
-                    self.assertEqual(response.get("status"), "Pending")
-                    self.assertNotEqual(response.get("hash"), None)
+            # with base.base_utils.mock_multiple_targets(
+            #     {"write_job_status": patch.object(db, "write_job_status", return_value=True)}
+            # ):
+            stub = harvester_grpc.HarvesterInitStub(channel, self.avroserialhelper)
+            responses = stub.initHarvester(s)
+            for response in list(responses):
+                self.assertEqual(response.get("status"), "Pending")
+                self.assertNotEqual(response.get("hash"), None)
 
     def test_Harvester_server_init_persistence(self):
         s = {
