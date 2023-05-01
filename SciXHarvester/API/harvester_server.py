@@ -109,8 +109,17 @@ class Harvester(HarvesterInitServicer):
         self.logger.info("HARVESTER: Latest message is: {}".format(msg))
         job_request["status"] = str(msg)
         yield job_request
+        if msg == "Error":
+            Done = True
+            self.logger.debug("Error = {}".format(Done))
+            listener.end = True
+        elif msg == "Success":
+            Done = True
+            self.logger.debug("Done = {}".format(Done))
+            listener.end = True
+        else:
+            Done = False
         old_msg = msg
-        Done = False
         while not Done:
             if msg and msg != old_msg:
                 self.logger.info("yielded new status: {}".format(msg))
@@ -145,6 +154,7 @@ class Harvester(HarvesterInitServicer):
                 except Exception as e:
                     self.logger.error("failed to read message with error: {}.".format(e))
                     continue
+        return
 
     def initHarvester(self, request, context: grpc.aio.ServicerContext):
         self.logger.info("Serving initHarvester request %s", request)
@@ -174,7 +184,7 @@ class Harvester(HarvesterInitServicer):
         yield job_request
 
         if persistence:
-            yield self.persistent_connection(job_request)
+            yield from self.persistent_connection(job_request)
 
     def monitorHarvester(self, request, context: grpc.aio.ServicerContext):
         self.logger.info("%s", request)
@@ -187,7 +197,7 @@ class Harvester(HarvesterInitServicer):
 
         if hash:
             if persistence:
-                yield self.persistent_connection(job_request)
+                yield from self.persistent_connection(job_request)
             else:
                 msg = db.get_job_status_by_job_hash(self, [str(hash)]).name
                 job_request["status"] = str(msg)
