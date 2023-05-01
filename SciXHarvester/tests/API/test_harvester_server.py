@@ -313,6 +313,7 @@ class HarvesterServer(TestCase):
                     self.assertEqual(response.get("hash"), s.get("hash"))
 
     def test_Harvester_server_init_and_monitor(self):
+        cls = Harvester(self.producer, self.schema, self.schema_client, self.logger.logger)
         s = {
             "task_args": {
                 "ingest": True,
@@ -336,9 +337,13 @@ class HarvesterServer(TestCase):
                     "hash": output_hash,
                     "task_args": {"persistence": False},
                 }
+
+        # Test update_job_status as well to mimic the Pipeline updating the status.
+        db.update_job_status(cls, output_hash, status="Processing")
+
         with grpc.insecure_channel(f"localhost:{self.port}") as channel:
             stub = harvester_grpc.HarvesterMonitorStub(channel, self.avroserialhelper)
             responses = stub.monitorHarvester(s)
             for response in list(responses):
-                self.assertEqual(response.get("status"), "Pending")
+                self.assertEqual(response.get("status"), "Processing")
                 self.assertEqual(response.get("hash"), s.get("hash"))
