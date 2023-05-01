@@ -103,6 +103,7 @@ class Harvester(HarvesterInitServicer):
     def persistent_connection(self, job_request):
         listener = Listener()
         listener.subscribe()
+        hash = job_request.get("hash")
         msg = db.get_job_status_by_job_hash(self, [str(hash)]).name
         self.logger.info("HARVESTER: User requested persitent connection.")
         self.logger.info("HARVESTER: Latest message is: {}".format(msg))
