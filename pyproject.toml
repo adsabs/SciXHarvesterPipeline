@@ -59,7 +59,7 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--cov=harvester --cov=API --cov-report=term-missing"
+addopts = "--cov=SciXHarvester/harvester --cov=SciXHarvester/API --cov-report=term-missing"
 cache_dir = ".tmp/"
 testpaths = [
     "SciXHarvester/tests",

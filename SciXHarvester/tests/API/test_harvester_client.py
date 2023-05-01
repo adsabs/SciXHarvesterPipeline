@@ -54,5 +54,4 @@ class TestHarvesterClient(TestCase):
         self.assertEqual(args.persistence, True)
 
         s = output_message(args)
-        print(s)
         self.assertEqual(s["task"], "ARXIV")
