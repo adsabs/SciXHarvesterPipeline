@@ -100,9 +100,7 @@ class Harvester(HarvesterInitServicer):
         finally:
             session.close()
 
-    def persistent_connection(self, job_request):
-        listener = Listener()
-        listener.subscribe()
+    def persistent_connection(self, job_request, listener):
         hash = job_request.get("hash")
         msg = db.get_job_status_by_job_hash(self, [str(hash)]).name
         self.logger.info("HARVESTER: User requested persitent connection.")
@@ -184,7 +182,9 @@ class Harvester(HarvesterInitServicer):
         yield job_request
 
         if persistence:
-            yield from self.persistent_connection(job_request)
+            listener = Listener()
+            listener.subscribe()
+            yield from self.persistent_connection(job_request, listener)
 
     def monitorHarvester(self, request, context: grpc.aio.ServicerContext):
         self.logger.info("%s", request)
@@ -197,7 +197,9 @@ class Harvester(HarvesterInitServicer):
 
         if hash:
             if persistence:
-                yield from self.persistent_connection(job_request)
+                listener = Listener()
+                listener.subscribe()
+                yield from self.persistent_connection(job_request, listener)
             else:
                 msg = db.get_job_status_by_job_hash(self, [str(hash)]).name
                 job_request["status"] = str(msg)

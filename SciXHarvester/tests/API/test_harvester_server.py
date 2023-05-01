@@ -10,16 +10,16 @@ from mock import patch
 
 from API.avro_serializer import AvroSerialHelper
 from API.grpc_modules import harvester_grpc
-from API.harvester_client import Logging, get_schema
-from API.harvester_server import Harvester
+from API.harvester_client import get_schema
+from API.harvester_server import Harvester, Listener, Logging
 from harvester import db
 from tests.API import base
 from tests.common.mockschemaregistryclient import MockSchemaRegistryClient
 
 
 class fake_db_entry(object):
-    def __init__(self):
-        self.name = "Success"
+    def __init__(self, status="Success"):
+        self.name = status
 
 
 class HarvesterServer(TestCase):
@@ -89,6 +89,102 @@ class HarvesterServer(TestCase):
                     self.assertEqual(response.get("status"), "Pending")
                     self.assertNotEqual(response.get("hash"), None)
 
+    def test_Harvester_server_init_persistence(self):
+        s = {
+            "task_args": {
+                "ingest": True,
+                "ingest_type": "metadata",
+                "daterange": "2023-04-26",
+                "persistence": True,
+            },
+            "task": "ARXIV",
+        }
+        with grpc.insecure_channel(f"localhost:{self.port}") as channel:
+            with base.base_utils.mock_multiple_targets(
+                {
+                    "write_job_status": patch.object(db, "write_job_status", return_value=True),
+                    "get_job_status_by_job_hash": patch.object(
+                        db, "get_job_status_by_job_hash", return_value=fake_db_entry("Processing")
+                    ),
+                    "__init__": patch.object(Listener, "__init__", return_value=None),
+                    "subscribe": patch.object(Listener, "subscribe", return_value=True),
+                    "get_status_redis": patch.object(
+                        Listener, "get_status_redis", return_value=iter(["Success"])
+                    ),
+                }
+            ):
+                stub = harvester_grpc.HarvesterInitStub(channel, self.avroserialhelper)
+                responses = stub.initHarvester(s)
+                final_response = []
+                for response in list(responses):
+                    self.assertNotEqual(response.get("hash"), None)
+                    final_response.append(response.get("status"))
+                self.assertEqual(final_response, ["Pending", "Processing", "Success"])
+
+    def test_Harvester_server_init_persistence_error_redis(self):
+        s = {
+            "task_args": {
+                "ingest": True,
+                "ingest_type": "metadata",
+                "daterange": "2023-04-26",
+                "persistence": True,
+            },
+            "task": "ARXIV",
+        }
+        with grpc.insecure_channel(f"localhost:{self.port}") as channel:
+            with base.base_utils.mock_multiple_targets(
+                {
+                    "write_job_status": patch.object(db, "write_job_status", return_value=True),
+                    "get_job_status_by_job_hash": patch.object(
+                        db, "get_job_status_by_job_hash", return_value=fake_db_entry("Processing")
+                    ),
+                    "__init__": patch.object(Listener, "__init__", return_value=None),
+                    "subscribe": patch.object(Listener, "subscribe", return_value=True),
+                    "get_status_redis": patch.object(
+                        Listener, "get_status_redis", return_value=iter(["Error"])
+                    ),
+                }
+            ):
+                stub = harvester_grpc.HarvesterInitStub(channel, self.avroserialhelper)
+                responses = stub.initHarvester(s)
+                final_response = []
+                for response in list(responses):
+                    self.assertNotEqual(response.get("hash"), None)
+                    final_response.append(response.get("status"))
+                self.assertEqual(final_response, ["Pending", "Processing", "Error"])
+
+    def test_Harvester_server_init_persistence_error_db(self):
+        s = {
+            "task_args": {
+                "ingest": True,
+                "ingest_type": "metadata",
+                "daterange": "2023-04-26",
+                "persistence": True,
+            },
+            "task": "ARXIV",
+        }
+        with grpc.insecure_channel(f"localhost:{self.port}") as channel:
+            with base.base_utils.mock_multiple_targets(
+                {
+                    "write_job_status": patch.object(db, "write_job_status", return_value=True),
+                    "get_job_status_by_job_hash": patch.object(
+                        db, "get_job_status_by_job_hash", return_value=fake_db_entry("Error")
+                    ),
+                    "__init__": patch.object(Listener, "__init__", return_value=None),
+                    "subscribe": patch.object(Listener, "subscribe", return_value=True),
+                    "get_status_redis": patch.object(
+                        Listener, "get_status_redis", return_value=iter(["Error"])
+                    ),
+                }
+            ):
+                stub = harvester_grpc.HarvesterInitStub(channel, self.avroserialhelper)
+                responses = stub.initHarvester(s)
+                final_response = []
+                for response in list(responses):
+                    self.assertNotEqual(response.get("hash"), None)
+                    final_response.append(response.get("status"))
+                self.assertEqual(final_response, ["Pending", "Error"])
+
     def test_Harvester_server_monitor(self):
         s = {
             "task": "MONITOR",
@@ -107,4 +203,110 @@ class HarvesterServer(TestCase):
                 responses = stub.monitorHarvester(s)
                 for response in list(responses):
                     self.assertEqual(response.get("status"), "Success")
+                    self.assertEqual(response.get("hash"), s.get("hash"))
+
+    def test_Harvester_server_monitor_persistent_success(self):
+        s = {
+            "task": "MONITOR",
+            "hash": "c98b5b0f5e4dce3197a4a9a26d124d036f293a9a90a18361f475e4f08c19f2da",
+            "task_args": {"persistence": True},
+        }
+        with grpc.insecure_channel(f"localhost:{self.port}") as channel:
+            with base.base_utils.mock_multiple_targets(
+                {
+                    "write_job_status": patch.object(db, "write_job_status", return_value=True),
+                    "get_job_status_by_job_hash": patch.object(
+                        db, "get_job_status_by_job_hash", return_value=fake_db_entry("Success")
+                    ),
+                    "__init__": patch.object(Listener, "__init__", return_value=None),
+                    "subscribe": patch.object(Listener, "subscribe", return_value=True),
+                    "get_status_redis": patch.object(
+                        Listener, "get_status_redis", return_value=iter(["Success"])
+                    ),
+                }
+            ):
+                stub = harvester_grpc.HarvesterMonitorStub(channel, self.avroserialhelper)
+                responses = stub.monitorHarvester(s)
+                for response in list(responses):
+                    self.assertEqual(response.get("status"), "Success")
+                    self.assertEqual(response.get("hash"), s.get("hash"))
+
+    def test_Harvester_server_monitor_persistent_error_db(self):
+        s = {
+            "task": "MONITOR",
+            "hash": "c98b5b0f5e4dce3197a4a9a26d124d036f293a9a90a18361f475e4f08c19f2da",
+            "task_args": {"persistence": True},
+        }
+        with grpc.insecure_channel(f"localhost:{self.port}") as channel:
+            with base.base_utils.mock_multiple_targets(
+                {
+                    "write_job_status": patch.object(db, "write_job_status", return_value=True),
+                    "get_job_status_by_job_hash": patch.object(
+                        db, "get_job_status_by_job_hash", return_value=fake_db_entry("Error")
+                    ),
+                    "__init__": patch.object(Listener, "__init__", return_value=None),
+                    "subscribe": patch.object(Listener, "subscribe", return_value=True),
+                    "get_status_redis": patch.object(
+                        Listener, "get_status_redis", return_value=iter(["Success"])
+                    ),
+                }
+            ):
+                stub = harvester_grpc.HarvesterMonitorStub(channel, self.avroserialhelper)
+                responses = stub.monitorHarvester(s)
+                for response in list(responses):
+                    self.assertEqual(response.get("status"), "Error")
+                    self.assertEqual(response.get("hash"), s.get("hash"))
+
+    def test_Harvester_server_monitor_persistent_error_redis(self):
+        s = {
+            "task": "MONITOR",
+            "hash": "c98b5b0f5e4dce3197a4a9a26d124d036f293a9a90a18361f475e4f08c19f2da",
+            "task_args": {"persistence": True},
+        }
+        with grpc.insecure_channel(f"localhost:{self.port}") as channel:
+            with base.base_utils.mock_multiple_targets(
+                {
+                    "write_job_status": patch.object(db, "write_job_status", return_value=True),
+                    "get_job_status_by_job_hash": patch.object(
+                        db, "get_job_status_by_job_hash", return_value=fake_db_entry("Processing")
+                    ),
+                    "__init__": patch.object(Listener, "__init__", return_value=None),
+                    "subscribe": patch.object(Listener, "subscribe", return_value=True),
+                    "get_status_redis": patch.object(
+                        Listener, "get_status_redis", return_value=iter(["Error"])
+                    ),
+                }
+            ):
+                stub = harvester_grpc.HarvesterMonitorStub(channel, self.avroserialhelper)
+                responses = stub.monitorHarvester(s)
+                final_responses = []
+                for response in list(responses):
+                    final_responses.append(response.get("status"))
+                    self.assertEqual(response.get("hash"), s.get("hash"))
+                self.assertEqual(final_responses, ["Processing", "Error"])
+
+    def test_Harvester_server_monitor_no_hash(self):
+        s = {
+            "task": "MONITOR",
+            "hash": None,
+            "task_args": {"persistence": True},
+        }
+        with grpc.insecure_channel(f"localhost:{self.port}") as channel:
+            with base.base_utils.mock_multiple_targets(
+                {
+                    "write_job_status": patch.object(db, "write_job_status", return_value=True),
+                    "get_job_status_by_job_hash": patch.object(
+                        db, "get_job_status_by_job_hash", return_value=fake_db_entry("Error")
+                    ),
+                    "__init__": patch.object(Listener, "__init__", return_value=None),
+                    "subscribe": patch.object(Listener, "subscribe", return_value=True),
+                    "get_status_redis": patch.object(
+                        Listener, "get_status_redis", return_value=iter(["Success"])
+                    ),
+                }
+            ):
+                stub = harvester_grpc.HarvesterMonitorStub(channel, self.avroserialhelper)
+                responses = stub.monitorHarvester(s)
+                for response in list(responses):
+                    self.assertEqual(response.get("status"), "Error")
                     self.assertEqual(response.get("hash"), s.get("hash"))
