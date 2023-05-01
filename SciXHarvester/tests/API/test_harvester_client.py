@@ -12,7 +12,7 @@ class TestHarvesterClient(TestCase):
     def test_get_schema(self):
         logger = Logging(logging)
         schema_client = MockSchemaRegistryClient()
-        VALUE_SCHEMA_FILE = "tests/stubdata/AVRO_schemas/HarvesterInputSchema.avsc"
+        VALUE_SCHEMA_FILE = "SciXHarvester/tests/stubdata/AVRO_schemas/HarvesterInputSchema.avsc"
         VALUE_SCHEMA_NAME = "HarvesterInputSchema"
         value_schema = open(VALUE_SCHEMA_FILE).read()
 

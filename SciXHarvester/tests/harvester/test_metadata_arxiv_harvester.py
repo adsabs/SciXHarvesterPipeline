@@ -39,7 +39,9 @@ class test_ArXiV_Harvester(TestCase):
                 daterange="2023-03-07",
                 resumptionToken=None,
             )
-            with open("tests/stubdata/arxiv/metadata/ListRecords_data_0.xml", "r+") as f:
+            with open(
+                "SciXHarvester/tests/stubdata/arxiv/metadata/ListRecords_data_0.xml", "r+"
+            ) as f:
                 response_text = f.read()
             self.assertEqual(arxiv_harvester.raw_xml, response_text)
 
@@ -50,7 +52,9 @@ class test_ArXiV_Harvester(TestCase):
                 daterange=None,
                 resumptionToken="6511260|1001",
             )
-            with open("tests/stubdata/arxiv/metadata/ListRecords_data_1.xml", "r+") as f:
+            with open(
+                "SciXHarvester/tests/stubdata/arxiv/metadata/ListRecords_data_1.xml", "r+"
+            ) as f:
                 response_text = f.read()
             self.assertEqual(arxiv_harvester.raw_xml, response_text)
 
@@ -73,7 +77,7 @@ class test_ArXiV_Harvester(TestCase):
             harvested_records = []
             for record in arxiv_harvester:
                 harvested_records.append(record)
-            with open("tests/stubdata/arxiv/metadata/parsed_records.pkl", "rb") as f:
+            with open("SciXHarvester/tests/stubdata/arxiv/metadata/parsed_records.pkl", "rb") as f:
                 test_records = pickle.load(f)
             self.assertEqual(2265, len(harvested_records))
             self.assertEqual(harvested_records, test_records)
@@ -96,7 +100,7 @@ class test_ArXiV_Harvester(TestCase):
                 ),
             }
         ) as mocked:
-            mock_app = Harvester_APP(proj_home="tests/stubdata/")
+            mock_app = Harvester_APP(proj_home="SciXHarvester/tests/stubdata/")
             mock_app.schema_client = MockSchemaRegistryClient()
             producer = AvroProducer({}, schema_registry=mock_app.schema_client)
             with moto.mock_s3():

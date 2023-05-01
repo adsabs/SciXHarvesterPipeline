@@ -28,7 +28,9 @@ class HarvesterServer(TestCase):
         self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
         self.logger = Logging(logging)
         self.schema_client = MockSchemaRegistryClient()
-        self.VALUE_SCHEMA_FILE = "tests/stubdata/AVRO_schemas/HarvesterInputSchema.avsc"
+        self.VALUE_SCHEMA_FILE = (
+            "SciXHarvester/tests/stubdata/AVRO_schemas/HarvesterInputSchema.avsc"
+        )
         self.VALUE_SCHEMA_NAME = "HarvesterInputSchema"
         self.value_schema = open(self.VALUE_SCHEMA_FILE).read()
 
@@ -36,7 +38,9 @@ class HarvesterServer(TestCase):
         self.schema = get_schema(self.logger, self.schema_client, self.VALUE_SCHEMA_NAME)
         self.avroserialhelper = AvroSerialHelper(self.schema, self.logger.logger)
 
-        OUTPUT_VALUE_SCHEMA_FILE = "tests/stubdata/AVRO_schemas/HarvesterOutputSchema.avsc"
+        OUTPUT_VALUE_SCHEMA_FILE = (
+            "SciXHarvester/tests/stubdata/AVRO_schemas/HarvesterOutputSchema.avsc"
+        )
         OUTPUT_VALUE_SCHEMA_NAME = "HarvesterOutputSchema"
         output_value_schema = open(OUTPUT_VALUE_SCHEMA_FILE).read()
 

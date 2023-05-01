@@ -51,12 +51,10 @@ jobs:
         pip install -e '.[dev]'
 
     - name: Test with pytest
-      working-directory: SciXHarvester
       run: |
-        py.test
+        pytest
 
     - name: Coveralls
-      working-directory: SciXHarvester
       run: coveralls
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

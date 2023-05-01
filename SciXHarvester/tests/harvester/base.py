@@ -48,7 +48,7 @@ class MockGetRecord(requests_mock.MockerCore):
     def __init__(self, **kwargs):
         requests_mock.MockerCore.__init__(self)
         self.kwargs = kwargs
-        with open("tests/stubdata/arxiv/metadata/GetRecord_data.xml", "r+") as f:
+        with open("SciXHarvester/tests/stubdata/arxiv/metadata/GetRecord_data.xml", "r+") as f:
             response_text = f.read()
         self.url = (
             "https://export.arxiv.org/oai2?verb=GetRecord&identifier=oai%3AarXiv.org%3A2107.10460"
@@ -93,11 +93,12 @@ class MockListRecords(requests_mock.MockerCore):
     def callback(self, i, kwargs):
         if not kwargs.get("error_503"):
             with open(
-                "tests/stubdata/arxiv/metadata/ListRecords_data_{}.xml".format(i), "r+"
+                "SciXHarvester/tests/stubdata/arxiv/metadata/ListRecords_data_{}.xml".format(i),
+                "r+",
             ) as f:
                 response_text = f.read()
         else:
-            with open("tests/stubdata/arxiv/arxiv_retry_after.html", "r+") as f:
+            with open("SciXHarvester/tests/stubdata/arxiv/arxiv_retry_after.html", "r+") as f:
                 response_text = f.read()
         return response_text
 
@@ -118,7 +119,9 @@ class MockListIdentifiers(requests_mock.MockerCore):
     def __init__(self, **kwargs):
         requests_mock.MockerCore.__init__(self)
         self.kwargs = kwargs
-        with open("tests/stubdata/arxiv/metadata/ListIdentifiers_data.xml", "r+") as f:
+        with open(
+            "SciXHarvester/tests/stubdata/arxiv/metadata/ListIdentifiers_data.xml", "r+"
+        ) as f:
             response_text = f.read()
         self.url = "https://export.arxiv.org/oai2?metadataPrefix=oai_dc&verb=ListIdentifiers&from=2023-03-07"
 

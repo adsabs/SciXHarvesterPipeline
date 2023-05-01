@@ -22,7 +22,7 @@ class test_harvester(TestCase):
                 "write_status_redis": patch.object(db, "write_status_redis", return_value=True),
             }
         ) as mocked:
-            mock_app = Harvester_APP(proj_home="tests/stubdata/")
+            mock_app = Harvester_APP(proj_home="SciXHarvester/tests/stubdata/")
             mock_app.schema_client = MockSchemaRegistryClient()
             producer = AvroProducer({}, schema_registry=mock_app.schema_client)
             mock_app.harvester_task(mock_job_request, producer)
