@@ -55,28 +55,6 @@ jobs:
       run: |
         py.test
 
-    - uses: actions/upload-artifact@v2
-      with:
-        name: coverage-harvesterpipeline
-        path: SciXHarvester/.coverage
-
-  coveralls:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-
-    - name: Install dependencies
-      run: |
-        pip install -e '.[dev]'
-    - uses: actions/download-artifact@master
-      with:
-        name: coverage-harvesterpipeline
-
     - name: Coveralls
       working-directory: SciXHarvester
       run: coveralls
