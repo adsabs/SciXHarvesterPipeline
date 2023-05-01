@@ -69,7 +69,7 @@ pythonpath = [
 ]
 
 [tool.coverage.run]
-data_file = ".tmp/.coverage"
+data_file = "SciXHarvester/.coverage"
 
 [tool.coverage.report]
 skip_empty = true
