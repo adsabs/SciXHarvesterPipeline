@@ -149,7 +149,7 @@ class Harvester(HarvesterInitServicer):
 
             else:
                 try:
-                    msg = next(listener.get_status_redis(hash))
+                    msg = next(listener.get_status_redis(hash, self.logger))
                     self.logger.debug("HARVESTER: Redis published status: {}".format(msg))
                 except Exception as e:
                     self.logger.error("failed to read message with error: {}.".format(e))
