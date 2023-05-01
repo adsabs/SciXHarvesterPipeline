@@ -148,7 +148,6 @@ class Harvester(HarvesterInitServicer):
     def initHarvester(self, request, context: grpc.aio.ServicerContext):
         self.logger.info("Serving initHarvester request %s", request)
         tstamp = datetime.now().timestamp()
-        print(request)
         self.logger.info(json.dumps(request.get("task_args")))
         self.logger.info(
             "Sending {} to Harvester Topic".format(
@@ -171,10 +170,10 @@ class Harvester(HarvesterInitServicer):
 
         db.write_job_status(self, job_request)
 
+        yield job_request
+
         if persistence:
-            self.persistent_connection(job_request)
-        else:
-            yield job_request
+            yield self.persistent_connection(job_request)
 
     def monitorHarvester(self, request, context: grpc.aio.ServicerContext):
         self.logger.info("%s", request)
@@ -187,7 +186,7 @@ class Harvester(HarvesterInitServicer):
 
         if hash:
             if persistence:
-                self.persistent_connection(job_request)
+                yield self.persistent_connection(job_request)
             else:
                 msg = db.get_job_status_by_job_hash(self, [str(hash)]).name
                 job_request["status"] = str(msg)
