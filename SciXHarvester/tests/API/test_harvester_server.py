@@ -44,13 +44,13 @@ class HarvesterServer(TestCase):
         self.producer = AvroProducer({}, schema_registry=MockSchemaRegistryClient())
 
         harvester_grpc.add_HarvesterInitServicer_to_server(
-            Harvester(self.producer, self.schema, self.schema_client),
+            Harvester(self.producer, self.schema, self.schema_client, self.logger.logger),
             self.server,
             self.avroserialhelper,
         )
 
         harvester_grpc.add_HarvesterMonitorServicer_to_server(
-            Harvester(self.producer, self.schema, self.schema_client),
+            Harvester(self.producer, self.schema, self.schema_client, self.logger.logger),
             self.server,
             self.avroserialhelper,
         )
