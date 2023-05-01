@@ -172,7 +172,7 @@ class Harvester(HarvesterInitServicer):
         db.write_job_status(self, job_request)
 
         if persistence:
-            self.persistent_connection(job_request, self.logger)
+            self.persistent_connection(job_request)
         else:
             yield job_request
 
@@ -187,7 +187,7 @@ class Harvester(HarvesterInitServicer):
 
         if hash:
             if persistence:
-                self.persistent_connection(job_request, self.logger)
+                self.persistent_connection(job_request)
             else:
                 msg = db.get_job_status_by_job_hash(self, [str(hash)]).name
                 job_request["status"] = str(msg)
