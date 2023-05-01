@@ -1,5 +1,4 @@
 import ast
-import inspect
 import json
 import os
 import sys
@@ -36,7 +35,7 @@ def load_config(proj_home=None, extra_frames=0, app_name=None):
         if not os.path.exists(proj_home):
             raise Exception("{proj_home} doesnt exist".format(proj_home=proj_home))
     else:
-        proj_home = _get_proj_home(extra_frames=extra_frames)
+        proj_home = os.path.abspath("./")
 
     if proj_home not in sys.path:
         sys.path.append(proj_home)
@@ -48,31 +47,6 @@ def load_config(proj_home=None, extra_frames=0, app_name=None):
     conf_update_from_env(app_name or conf.get("SERVICE", ""), conf)
 
     return conf
-
-
-def _get_proj_home(extra_frames=0):
-    """Get the location of the caller module; then go up max_levels until
-    finding requirements.txt"""
-
-    frame = inspect.stack()[2 + extra_frames]
-    module = inspect.getsourcefile(frame[0])
-    if not module:
-        raise Exception(
-            "Sorry, wasnt able to guess your location. Let devs know about this issue."
-        )
-    d = os.path.dirname(module)
-    x = d
-    max_level = 3
-    while max_level:
-        f = os.path.abspath(os.path.join(x, "requirements.txt"))
-        if os.path.exists(f):
-            return x
-        x = os.path.abspath(os.path.join(x, ".."))
-        max_level -= 1
-    sys.stderr.write(
-        "Sorry, cant find the proj home; returning the location of the caller: %s\n" % d
-    )
-    return d
 
 
 def load_module(filename):
