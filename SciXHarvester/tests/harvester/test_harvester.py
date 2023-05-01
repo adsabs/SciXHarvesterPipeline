@@ -18,7 +18,6 @@ class test_harvester(TestCase):
                 "arxiv_harvesting": patch.object(
                     arxiv_harvester, "arxiv_harvesting", return_value="Success"
                 ),
-                "update_job_status": patch.object(db, "update_job_status", return_value=True),
                 "write_status_redis": patch.object(db, "write_status_redis", return_value=True),
             }
         ) as mocked:
@@ -27,5 +26,4 @@ class test_harvester(TestCase):
             producer = AvroProducer({}, schema_registry=mock_app.schema_client)
             mock_app.harvester_task(mock_job_request, producer)
             self.assertTrue(mocked["arxiv_harvesting"].called)
-            self.assertTrue(mocked["update_job_status"].called)
             self.assertTrue(mocked["write_status_redis"].called)

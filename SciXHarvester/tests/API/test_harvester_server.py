@@ -84,9 +84,6 @@ class HarvesterServer(TestCase):
             "task": "ARXIV",
         }
         with grpc.insecure_channel(f"localhost:{self.port}") as channel:
-            # with base.base_utils.mock_multiple_targets(
-            #     {"write_job_status": patch.object(db, "write_job_status", return_value=True)}
-            # ):
             stub = harvester_grpc.HarvesterInitStub(channel, self.avroserialhelper)
             responses = stub.initHarvester(s)
             for response in list(responses):
@@ -314,3 +311,34 @@ class HarvesterServer(TestCase):
                 for response in list(responses):
                     self.assertEqual(response.get("status"), "Error")
                     self.assertEqual(response.get("hash"), s.get("hash"))
+
+    def test_Harvester_server_init_and_monitor(self):
+        s = {
+            "task_args": {
+                "ingest": True,
+                "ingest_type": "metadata",
+                "daterange": "2023-04-26",
+                "persistence": False,
+            },
+            "task": "ARXIV",
+        }
+        with grpc.insecure_channel(f"localhost:{self.port}") as channel:
+            stub = harvester_grpc.HarvesterInitStub(channel, self.avroserialhelper)
+            responses = stub.initHarvester(s)
+            output_hash = None
+            for response in list(responses):
+                output_hash = response.get("hash")
+                self.assertEqual(response.get("status"), "Pending")
+                self.assertNotEqual(response.get("hash"), None)
+
+                s = {
+                    "task": "MONITOR",
+                    "hash": output_hash,
+                    "task_args": {"persistence": False},
+                }
+        with grpc.insecure_channel(f"localhost:{self.port}") as channel:
+            stub = harvester_grpc.HarvesterMonitorStub(channel, self.avroserialhelper)
+            responses = stub.monitorHarvester(s)
+            for response in list(responses):
+                self.assertEqual(response.get("status"), "Pending")
+                self.assertEqual(response.get("hash"), s.get("hash"))
