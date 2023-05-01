@@ -1,5 +1,4 @@
 import datetime
-import json
 import logging as logger
 
 import harvester.models as models
@@ -10,22 +9,6 @@ logger.basicConfig(level=logger.DEBUG)
 def write_status_redis(redis_instance, status):
     logger.debug("Publishing status: {}".format(status))
     redis_instance.publish("harvester_statuses", status)
-
-
-def get_status_redis(subscription, job_id):
-    status = None
-    logger.debug("DB: Listening for harvester status updates")
-    while not status:
-        for message in subscription.listen():
-            logger.debug("DB: Message from redis: {}".format(message))
-            if message is not None and isinstance(message, dict):
-                if message.get("data") != 1:
-                    logger.debug("DB: data: {}".format(message.get("data")))
-                    status_dict = json.loads(message.get("data"))
-                    if status_dict["job_id"] == job_id:
-                        status = status_dict["status"]
-                        logger.debug("DB: status: {}".format(status))
-                        return status
 
 
 def get_job_status_by_job_hash(cls, job_hashes, only_status=None):
