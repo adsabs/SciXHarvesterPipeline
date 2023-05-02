@@ -1,8 +1,8 @@
 [![Python CI actions](https://github.com/tjacovich/ADSHarvesterPipeline/actions/workflows/python_actions.yml/badge.svg)](https://github.com/tjacovich/ADSHarvesterPipeline/actions/workflows/python_actions.yml) [![Coverage Status](https://coveralls.io/repos/github/tjacovich/SciXHarvesterPipeline/badge.svg)](https://coveralls.io/github/tjacovich/SciXHarvesterPipeline)
 ![Harvester Pipeline Flowchart](README_assets/Harvester_implementation.png?raw=true "Harvester Pipeline Flowchart")
 
-## Setting Up a Development Environment.
-### Installing dependencies and hooks
+# Setting Up a Development Environment
+## Installing dependencies and hooks
 This project uses `pyproject.toml` to install necessary dependencies and otherwise set up a working development environment. To set up a local working environment, simply run the following:
 ```bash
 virtualenv .venv
@@ -20,15 +20,16 @@ export GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
 export GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1
 ```
 
-### Testing with pytest
-Tests can be run from  the `SciXHarvester` directory using pytest:
+## Testing with pytest
+Tests can be run from the main directory using `pytest`:
 ```bash
-cd SciXHarvester/
-py.test
+pytest
 ```
 
-### Testing Against Kafka
-#### The Kafka Environment
+The `pytest` command line arguments are already specified in `pyproject.toml`.
+
+## Testing Against Kafka
+### The Kafka Environment
 In order to set up a full development environment, a kafka instance must be created that contains at least:
  - kafka broker
  - kafka zookeeper
@@ -46,7 +47,7 @@ For `postgres`, we will need a  database to store harvester data. We will also n
 We will also need to create Harvester input and output topics which can be done either through python or by using the `kafka-ui`.
 The relevant `AVRO` schemas from `SciXHarvester/AVRO_schemas/` must also be added to the schema registry using either python or the UI.
 
-#### Launching The Harvester
+### Launching The Harvester
 The harvester requires `librdkafka` be installed. The source can be found [here](https://github.com/edenhill/librdkafka).
 Installation on most `nix systems can be done by running the following:
 ```bash
@@ -61,7 +62,7 @@ python3 run.py HARVESTER_API
 python3 run.py HARVESTER_APP
 ```
 
-## Sending commands to the gRPC API
+# Sending commands to the gRPC API
 
 Currently, there are two methods that have been defined in the API for interacting with the Harvester Pipeline.
 - `HARVESTER_INIT`: Initialize a job with given `job_args` passed into the script as a JSON.
@@ -76,7 +77,22 @@ python3 API/harvester_client.py HARVESTER_INIT --task "ARXIV" --task_args '{"har
 python3 API/harvester_client.py HARVESTER_MONITOR --job_id '<job_id>'
 ```
 
-
+The response will be a `json` decoding of the `AVRO` message returned from the server:
+```bash
+#HARVESTER_MONITOR
+$ python3 SciXHarvester/API/harvester_client.py HARVESTER_MONITOR --job_id 'ad27dd32db6e6985e77f61efaf42d9657c7ef763f54044f955026ff4cccdfe9e'
+---
+{'hash': 'ad27dd32db6e6985e77f61efaf42d9657c7ef763f54044f955026ff4cccdfe9e', 'id': None, 'task': 'MONITOR', 'status': 'Success', 'task_args': {'ingest': None, 'ingest_type': None, 'daterange': None, 'resumptionToken': None, 'persistence': False}}
+```
+```bash
+#HARVESTER_INIT with persistent connection.
+$ python3 SciXHarvester/API/harvester_client.py HARVESTER_INIT --task "ARXIV" --task_args '{"ingest": "True", "ingest_type": "metadata", "daterange":"2023-05-02"}' --persistence
+---
+{'hash': 'ad27dd32db6e6985e77f61efaf42d9657c7ef763f54044f955026ff4cccdfe9e', 'id': None, 'task': 'ARXIV', 'status': 'Pending', 'task_args': {'ingest': True, 'ingest_type': 'metadata', 'daterange': '2023-05-02', 'resumptionToken': None, 'persistence': None}}
+{'hash': 'ad27dd32db6e6985e77f61efaf42d9657c7ef763f54044f955026ff4cccdfe9e', 'id': None, 'task': 'ARXIV', 'status': 'Pending', 'task_args': {'ingest': True, 'ingest_type': 'metadata', 'daterange': '2023-05-02', 'resumptionToken': None, 'persistence': None}}
+{'hash': 'ad27dd32db6e6985e77f61efaf42d9657c7ef763f54044f955026ff4cccdfe9e', 'id': None, 'task': 'ARXIV', 'status': 'Processing', 'task_args': {'ingest': True, 'ingest_type': 'metadata', 'daterange': '2023-05-02', 'resumptionToken': None, 'persistence': None}}
+{'hash': 'ad27dd32db6e6985e77f61efaf42d9657c7ef763f54044f955026ff4cccdfe9e', 'id': None, 'task': 'ARXIV', 'status': 'Success', 'task_args': {'ingest': True, 'ingest_type': 'metadata', 'daterange': '2023-05-02', 'resumptionToken': None, 'persistence': None}}
+```
 ## Maintainers
 
 Taylor Jacovich
