@@ -101,7 +101,7 @@ def write_harvester_record(cls, record_id, date, s3_key, checksum, source):
     success = False
     with cls.session_scope() as session:
         harvester_record = models.Harvester_record()
-        harvester_record.record_id = record_id
+        harvester_record.id = record_id
         harvester_record.s3_key = s3_key
         harvester_record.date = date
         harvester_record.checksum = checksum
@@ -112,16 +112,13 @@ def write_harvester_record(cls, record_id, date, s3_key, checksum, source):
     return success
 
 
-def get_harvester_record(cls, record_ids):
+def get_harvester_record(session, record_id):
     """
-    Return all updates with job_hash
+    Return record with UUID: record_id
     """
-    with cls.session_scope() as session:
-        logger.info("Opening Session")
-        for record_id in record_ids:
-            record_db = (
-                session.query(models.Harvester_record)
-                .filter(models.Harvester_record.record_id == record_id)
-                .first()
-            )
+    record_db = (
+        session.query(models.Harvester_record)
+        .filter(models.Harvester_record.id == record_id)
+        .first()
+    )
     return record_db

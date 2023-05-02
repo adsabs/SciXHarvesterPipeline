@@ -1,3 +1,4 @@
+import uuid
 from unittest import TestCase
 
 import base
@@ -29,3 +30,16 @@ class test_harvester(TestCase):
             self.assertTrue(mocked["arxiv_harvesting"].called)
             self.assertTrue(mocked["update_job_status"].called)
             self.assertTrue(mocked["write_status_redis"].called)
+
+    def test_writing_harvester_output(self):
+        mock_app = Harvester_APP(proj_home="SciXHarvester/tests/stubdata/")
+        record_id = uuid.UUID("00052bae-8bdd-4dd1-b0d4-d4893189b71c")
+        date = "2023-04-28 17:48:29.354791"
+        s3_key = "/20230428/7eceaca5-9b62-4e10-a153-a882b209df9f"
+        checksum = "947e77d2c4b4ec4ffb55a089e92bc538"
+        source = "ARXIV"
+        db.write_harvester_record(mock_app, record_id, date, s3_key, checksum, source)
+        mock_app = Harvester_APP(proj_home="SciXHarvester/tests/stubdata/")
+        with mock_app.session_scope() as session:
+            output_id = db.get_harvester_record(session, record_id).id
+        self.assertEqual(output_id, record_id)
