@@ -43,7 +43,7 @@ NUMBER_OF_REPLY = 10
 class Listener(Thread):
     def __init__(self):
         self.redis = redis.StrictRedis(
-            config.get("REDIS_HOST", "locahost"),
+            config.get("REDIS_HOST", "localhost"),
             config.get("REDIS_PORT", 6379),
             charset="utf-8",
             decode_responses=True,

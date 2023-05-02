@@ -33,7 +33,7 @@ class test_harvester(TestCase):
 
     def test_writing_harvester_output(self):
         mock_app = Harvester_APP(proj_home="SciXHarvester/tests/stubdata/")
-        record_id = uuid.UUID("00052bae-8bdd-4dd1-b0d4-d4893189b71c")
+        record_id = uuid.uuid4()
         date = "2023-04-28 17:48:29.354791"
         s3_key = "/20230428/7eceaca5-9b62-4e10-a153-a882b209df9f"
         checksum = "947e77d2c4b4ec4ffb55a089e92bc538"
