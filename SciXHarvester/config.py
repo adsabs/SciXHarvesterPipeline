@@ -6,7 +6,7 @@ LOG_STDOUT = True
 SQLALCHEMY_URL = "postgresql://harvester:harvester@localhost:5432/harvester_pipeline_test"
 SQLALCHEMY_ECHO = False
 # REDIS Configuration
-REDIS_HOST = "localhost"
+REDIS_HOST = "redis"
 REDIS_PORT = 6379
 # Kafka Configuration
 KAFKA_BROKER = "kafka:9092"
