@@ -20,6 +20,13 @@
             "type": "enum",
             "symbols" : ["ARXIV", "ELSEVIER", "IOP", "SIMBAD"]
         }
+    },
+    {
+        "name" : "datetime",
+        "type" : {
+          "type" : "long",
+          "logicalType" : "timestamp-millis"
+        }
     }
   ]
 }

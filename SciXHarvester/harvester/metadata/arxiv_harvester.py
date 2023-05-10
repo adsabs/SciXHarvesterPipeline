@@ -62,6 +62,7 @@ def arxiv_harvesting(app, job_request, producer):
                     "record_id": str(record_id),
                     "record_xml": record,
                     "task": job_request.get("task"),
+                    "datetime": datetime.now(),
                 }
                 producer.produce(
                     topic=app.config.get("HARVESTER_OUTPUT_TOPIC"),
