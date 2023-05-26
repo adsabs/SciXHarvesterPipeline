@@ -3,7 +3,7 @@
 LOGGING_LEVEL = "INFO"
 LOG_STDOUT = True
 # SQLALCHEMY Configuration
-SQLALCHEMY_URL = "postgresql://harvester:harvester@localhost:5432/harvester"
+SQLALCHEMY_URL = "postgresql://harvester:harvester@localhost:5432/harvester_pipeline_test"
 SQLALCHEMY_ECHO = False
 # REDIS Configuration
 REDIS_HOST = "localhost"
