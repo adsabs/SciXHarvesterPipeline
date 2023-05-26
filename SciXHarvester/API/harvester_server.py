@@ -156,13 +156,14 @@ class Harvester(HarvesterInitServicer):
 
     def initHarvester(self, request, context: grpc.aio.ServicerContext):
         self.logger.info("Serving initHarvester request %s", request)
+        tstamp = datetime.now().timestamp()
         self.logger.info(json.dumps(request.get("task_args")))
         self.logger.info(
             "Sending {} to Harvester Topic".format(
                 b" %s." % json.dumps(request.get("task_args")).encode("utf-8")
             )
         )
-        hash = hashlib.sha256(bytes(str(request), "utf-8")).hexdigest()
+        hash = hashlib.sha256(bytes(str(request) + str(tstamp), "utf-8")).hexdigest()
         self.logger.info("{}".format(hash))
 
         job_request = request
