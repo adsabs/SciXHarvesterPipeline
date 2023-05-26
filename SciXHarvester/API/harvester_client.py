@@ -8,10 +8,10 @@ import sys
 
 import grpc
 from confluent_kafka.schema_registry import SchemaRegistryClient
+from SciXPipelineUtils.utils import get_schema
 
 import SciXHarvester.API.grpc_modules.harvester_grpc as harvester_grpc
 from SciXHarvester.API.avro_serializer import AvroSerialHelper
-from SciXHarvester.harvester.utils import get_schema
 
 
 class Logging:

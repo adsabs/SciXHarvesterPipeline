@@ -5,8 +5,7 @@ import boto3
 import moto
 import pytest
 from botocore.exceptions import ParamValidationError
-
-from harvester.s3_methods import load_s3
+from SciXPipelineUtils.s3_methods import load_s3_providers
 
 
 @pytest.fixture
@@ -29,7 +28,7 @@ def test_upload_object(empty_bucket):
     Tests S3 methods for AWS host
     """
     mock_config = {"S3_PROVIDERS": ["AWS"], "AWS_BUCKET_NAME": "test-bucket-name"}
-    buckets = load_s3(mock_config).s3Clients
+    buckets = load_s3_providers(mock_config)
     file_bytes = b"Test_text"
     object_name = "/test_object/name"
     for producer in buckets:
@@ -41,7 +40,7 @@ def test_upload_nonbytes_object(empty_bucket):
     Tests error handling for file type
     """
     mock_config = {"S3_PROVIDERS": ["AWS"], "AWS_BUCKET_NAME": "test-bucket-name"}
-    buckets = load_s3(mock_config).s3Clients
+    buckets = load_s3_providers(mock_config)
     file_bytes = 11
     object_name = "/test_object/name"
     with pytest.raises(ParamValidationError):
@@ -67,7 +66,7 @@ def test_alternate_s3_endpoint_put_object():
             conn = boto3.resource("s3", endpoint_url=url)
             conn.create_bucket(Bucket=bucket)
 
-            buckets = load_s3(mock_config).s3Clients
+            buckets = load_s3_providers(mock_config)
             file_bytes = b"Test_text"
             object_name = "/test_object/name"
             for producer in buckets:

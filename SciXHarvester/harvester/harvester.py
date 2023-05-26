@@ -7,12 +7,13 @@ from datetime import datetime
 import redis
 from confluent_kafka.avro import AvroConsumer, AvroProducer
 from confluent_kafka.schema_registry import SchemaRegistryClient
+from SciXPipelineUtils import utils
+from SciXPipelineUtils.s3_methods import load_s3_providers
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import harvester.metadata.arxiv_harvester as arxiv_harvester
-from harvester import db, utils
-from harvester.s3_methods import load_s3
+from harvester import db
 
 
 def init_pipeline(proj_home):
@@ -68,7 +69,7 @@ class Harvester_APP:
         self.logger = None
         self.schema_client = None
         self._init_logger()
-        self.s3Clients = load_s3(self.config).s3Clients
+        self.s3Clients = load_s3_providers(self.config)
         self.Session = sessionmaker(self.engine)
         self.redis = redis.StrictRedis(
             self.config.get("REDIS_HOST", "localhost"),

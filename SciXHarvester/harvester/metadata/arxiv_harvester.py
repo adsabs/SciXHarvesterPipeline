@@ -6,8 +6,9 @@ from datetime import datetime
 
 import requests
 from adsingestp.parsers import arxiv
+from SciXPipelineUtils import utils
 
-from harvester import db, utils
+from harvester import db
 from harvester.base.OAIHarvester import OAIHarvester as OAI
 
 MAX_RETRIES = 5

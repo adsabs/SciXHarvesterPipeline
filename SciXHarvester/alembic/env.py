@@ -3,10 +3,10 @@ import sys
 from logging.config import fileConfig
 
 from alembic import context
+from SciXPipelineUtils.utils import load_config
 from sqlalchemy import engine_from_config, pool
 
 import harvester.models as models
-from harvester.utils import load_config
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
