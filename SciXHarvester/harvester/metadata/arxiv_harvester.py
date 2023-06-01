@@ -62,6 +62,7 @@ def arxiv_harvesting(app, job_request, producer):
                 producer_message = {
                     "record_id": str(record_id),
                     "record_xml": record,
+                    "s3_path": file_path,
                     "task": job_request.get("task"),
                     "datetime": datetime.now(),
                 }
