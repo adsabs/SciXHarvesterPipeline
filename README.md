@@ -95,4 +95,4 @@ $ python3 SciXHarvester/API/harvester_client.py HARVESTER_INIT --task "ARXIV" --
 ```
 ## Maintainers
 
-Taylor Jacovich
+Taylor Jacovich, Kelly Lockhart, Sergi Blanco Cuaresma
