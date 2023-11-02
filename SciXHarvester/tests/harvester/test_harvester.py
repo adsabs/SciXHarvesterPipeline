@@ -1,9 +1,9 @@
-import uuid
 from unittest import TestCase
 
 import base
 from confluent_kafka.avro import AvroProducer
 from mock import patch
+from SciXPipelineUtils.scix_uuid import scix_uuid as uuid
 
 import harvester.metadata.arxiv_harvester as arxiv_harvester
 from harvester import db

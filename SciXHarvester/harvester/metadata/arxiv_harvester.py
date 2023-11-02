@@ -1,12 +1,12 @@
 import logging as logger
 import re
 import time
-import uuid
 from datetime import datetime
 
 import requests
 from adsingestp.parsers import arxiv
 from SciXPipelineUtils import utils
+from SciXPipelineUtils.scix_uuid import scix_uuid as uuid
 
 from harvester import db
 from harvester.base.OAIHarvester import OAIHarvester as OAI

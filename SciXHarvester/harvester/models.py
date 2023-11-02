@@ -1,6 +1,6 @@
 import enum
-import uuid
 
+from SciXPipelineUtils.scix_uuid import scix_uuid as uuid
 from sqlalchemy import Column, DateTime, Enum, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
