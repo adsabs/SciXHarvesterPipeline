@@ -5,10 +5,9 @@ Revises: 6bfebb4af6ba
 Create Date: 2023-02-08 16:19:29.622107
 
 """
-import uuid
-
 import sqlalchemy as sa
 from alembic import op
+from SciXPipelineUtils.scix_uuid import scix_uuid as uuid
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.

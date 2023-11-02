@@ -36,7 +36,7 @@ class HarvesterServer(TestCase):
 
         self.schema_client.register(self.VALUE_SCHEMA_NAME, Schema(self.value_schema, "AVRO"))
         self.schema = get_schema(self.logger, self.schema_client, self.VALUE_SCHEMA_NAME)
-        self.avroserialhelper = AvroSerialHelper(self.schema, self.logger.logger)
+        self.avroserialhelper = AvroSerialHelper(str(self.schema), logger=self.logger.logger)
 
         OUTPUT_VALUE_SCHEMA_FILE = (
             "SciXHarvester/tests/stubdata/AVRO_schemas/HarvesterOutputSchema.avsc"

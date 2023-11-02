@@ -216,7 +216,7 @@ async def serve() -> None:
     app_log = Logging(logging)
     schema_client = SchemaRegistryClient({"url": config.get("SCHEMA_REGISTRY_URL")})
     schema = utils.get_schema(app_log, schema_client, config.get("HARVESTER_INPUT_SCHEMA"))
-    avroserialhelper = AvroSerialHelper(schema, app_log.logger)
+    avroserialhelper = AvroSerialHelper(schema, logger=app_log.logger)
     producer = AvroProducer(
         {
             "schema.registry.url": config.get("SCHEMA_REGISTRY_URL"),
