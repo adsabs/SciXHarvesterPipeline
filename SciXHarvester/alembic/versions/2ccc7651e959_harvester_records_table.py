@@ -25,7 +25,7 @@ def upgrade() -> None:
             "id",
             postgresql.UUID(as_uuid=True),
             primary_key=True,
-            default=uuid.uuid4,
+            default=uuid.uuid7,
             nullable=False,
         ),
         sa.Column("s3_key", sa.String(), nullable=True),

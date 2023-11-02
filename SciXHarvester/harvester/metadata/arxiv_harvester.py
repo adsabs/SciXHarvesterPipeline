@@ -37,7 +37,7 @@ def arxiv_harvesting(app, job_request, producer):
 
     for record in harvester:
         # Assign ID to new record
-        record_id = uuid.uuid4()
+        record_id = uuid.uuid7()
         # Generate filepath for S3
         file_path = "/{}/{}".format(datestamp, record_id)
         # write record to S3

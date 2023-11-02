@@ -44,7 +44,7 @@ class Harvester_record(Base):
     """
 
     __tablename__ = "harvester_records"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid7)
     s3_key = Column(String)
     date = Column(DateTime)
     checksum = Column(String)
