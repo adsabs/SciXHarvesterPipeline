@@ -1,6 +1,6 @@
 [project]
 name = "SciXHarvester"
-version = "0.0.1"
+version = "0.0.2"
 description = "The primary harvester unit for the new NASA Science Explorer (NASA SciX) backoffice architecture"
 authors = [{ name = "Taylor Jacovich", email = "tjacovich@cfa.harvard.edu"}]
 license = { text = "GPL-3.0" }
@@ -32,7 +32,7 @@ dependencies = [
     'six==1.16.0',
     'python-dateutil==2.8.1',
     'requests==2.29.0',
-    'SciXPipelineUtils @ git+https://github.com/tjacovich/SciXPipelineUtils.git@661825d2bc217985959517f2240c992876af50e3',
+    'SciXPipelineUtils @ git+https://github.com/adsabs/SciXPipelineUtils.git@v0.1.0',
 ]
 
 [project.urls]
